@@ -1,20 +1,20 @@
 name: Tech Bot Daily
 on:
   schedule:
-    - cron: '0 */6 * * *' # Her 6 saatte bir çalışır
-  workflow_dispatch: # İstediğinde elle çalıştırmak için
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11' # Python sürümünü yükselttik
       - name: Install Libs
-        run: pip install tweepy google-generativeai requests
+        run: pip install tweepy google-genai requests # Kütüphaneyi güncelledik
       - name: Run Bot
         env:
           X_API_KEY: ${{ secrets.X_API_KEY }}
