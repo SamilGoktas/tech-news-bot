@@ -37,7 +37,7 @@ def main():
     # 3. Llama 3 ile Tweet Oluştur
     try:
         completion = client_groq.chat.completions.create(
-            model="llama-3.1-70b-versatile", # Güçlü ve hızlı Llama 3.1 modeli
+            model="llama-3.3-70b-versatile", # Güçlü ve hızlı Llama 3.1 modeli
             messages=[
                 {
                     "role": "system",
