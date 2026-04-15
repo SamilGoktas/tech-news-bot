@@ -1,8 +1,8 @@
 name: Tech Bot Daily
 on:
   schedule:
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *' # Her saat başı (00:00, 01:00, 02:00...) otomatik çalışır
+  workflow_dispatch: # İstediğinde manuel çalıştırmak için
 
 jobs:
   run-bot:
@@ -14,11 +14,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install Libs
-        run: pip install atproto groq requests # Tweepy gitti, atproto geldi
+        run: pip install atproto groq requests
       - name: Run Bot
         env:
           BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
           BSKY_PASSWORD: ${{ secrets.BSKY_PASSWORD }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          NEWS_KEY: ${{ secrets.NEWS_API_KEY }}
         run: python bot.py
