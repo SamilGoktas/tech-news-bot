@@ -1,15 +1,11 @@
-import tweepy
-from groq import Groq # Yeni kütüphane
-import requests
 import os
+import requests
+from atproto import Client # Bluesky kütüphanesi
+from groq import Groq
 
 # Anahtarlar
-X_KEYS = {
-    "consumer_key": os.getenv("X_API_KEY"),
-    "consumer_secret": os.getenv("X_API_SECRET"),
-    "access_token": os.getenv("X_ACCESS_TOKEN"),
-    "access_token_secret": os.getenv("X_ACCESS_TOKEN_SECRET")
-}
+BSKY_HANDLE = os.getenv("BSKY_HANDLE")
+BSKY_PASSWORD = os.getenv("BSKY_PASSWORD")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_KEY = os.getenv("NEWS_API_KEY")
 
@@ -19,14 +15,16 @@ def get_tech_news():
         res = requests.get(url).json()
         if res.get("articles"):
             article = res["articles"][0]
-            return f"Haber: {article['title']}\nÖzet: {article['description']}\nLink: {article['url']}"
+            return f"Haber: {article['title']}\nLink: {article['url']}"
     except:
         return None
     return None
 
 def main():
-    # 1. Groq İstemcisi
+    # 1. AI ve Bluesky İstemcileri
     client_groq = Groq(api_key=GROQ_API_KEY)
+    client_bsky = Client()
+    client_bsky.login(BSKY_HANDLE, BSKY_PASSWORD)
 
     # 2. Haberi Al
     news_content = get_tech_news()
@@ -34,35 +32,27 @@ def main():
         print("Haber bulunamadı.")
         return
 
-    # 3. Llama 3 ile Tweet Oluştur
+    # 3. AI ile Post Oluştur (Llama 3.3)
     try:
         completion = client_groq.chat.completions.create(
-            model="llama-3.3-70b-versatile", # Güçlü ve hızlı Llama 3.1 modeli
+            model="llama-3.3-70b-versatile",
             messages=[
-                {
-                    "role": "system",
-                    "content": "Sen profesyonel bir teknoloji editörüsün. Görevin haberleri etkileyici ve kısa tweetlere dönüştürmek."
-                },
-                {
-                    "role": "user",
-                    "content": f"Aşağıdaki haberi Türkçe yorumla, heyecan verici bir tweet yap. Linki ekle. Maksimum 270 karakter:\n{news_content}"
-                }
+                {"role": "system", "content": "Sen bir teknoloji editörüsün. Haberleri Bluesky için etkileyici postlara dönüştürürsün."},
+                {"role": "user", "content": f"Şu haberi Türkçe yorumla, emojiler ekle ve linki sona koy:\n{news_content}"}
             ],
         )
-        tweet = completion.choices[0].message.content
+        post_text = completion.choices[0].message.content.strip().replace('"', '')
     except Exception as e:
-        print(f"Groq Hatası: {e}")
+        print(f"AI Hatası: {e}")
         return
 
-    # 4. X'te Paylaş
+    # 4. Bluesky'da Paylaş
     try:
-        client_x = tweepy.Client(**X_KEYS)
-        # AI bazen tırnak içine alabilir, temizleyelim
-        final_tweet = tweet.strip().replace('"', '')
-        client_x.create_tweet(text=final_tweet[:280])
-        print(f"Başarıyla paylaşıldı: {final_tweet[:50]}...")
+        # Bluesky'da tweet yerine 'post' denir
+        client_bsky.send_post(text=post_text)
+        print(f"Bluesky'da başarıyla paylaşıldı: {post_text[:50]}...")
     except Exception as e:
-        print(f"X API Hatası: {e}")
+        print(f"Bluesky Paylaşım Hatası: {e}")
 
 if __name__ == "__main__":
     main()
