@@ -33,7 +33,7 @@ def main():
     prompt = f"Aşağıdaki haberi teknoloji meraklısı bir dille Türkçe yorumla ve X için kısa bir tweet oluştur. Linki ekle. Maksimum 270 karakter:\n{news_content}"
     
     response = client_gemini.models.generate_content(
-        model='gemini-2.0-flash', # Güncel model ismi
+        model='gemini-1.5-flash', # Güncel model ismi
         contents=prompt
     )
     tweet = response.text
