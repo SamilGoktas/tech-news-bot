@@ -25,7 +25,7 @@ def get_tech_news():
 def main():
     # 1. AI'yı Hazırla
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-pro')
 
     # 2. Haberi Al
     news_content = get_tech_news()
